@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/mapNearBy"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp">
+        <AutoCompleteTextView
+            android:id="@+id/sourceAutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="Where are you?"
+            android:textSize="16dp"
+            android:shadowColor="@color/grey"
+            android:background="@drawable/rounded_corners"
+            android:gravity="start|center_vertical"
+            android:drawableLeft="@drawable/ic_search_icon"
+            android:drawablePadding="10dp"
+            android:singleLine="true"
+            >
+            <requestFocus />
+        </AutoCompleteTextView>
+
+        <AutoCompleteTextView
+            android:id="@+id/destinationAutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="Where are you headed?"
+            android:textSize="16dp"
+            android:shadowColor="@color/grey"
+            android:background="@drawable/rounded_corners"
+            android:gravity="start|center_vertical"
+            android:layout_below="@id/sourceAutoCompleteTextView"
+            android:drawableLeft="@drawable/ic_search_icon"
+            android:drawablePadding="10dp"
+            android:singleLine="true"
+            android:layout_marginTop="1dp"
+            >
+            <requestFocus />
+        </AutoCompleteTextView>
+
+        <RelativeLayout
+            android:id="@+id/layout_icons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/destinationAutoCompleteTextView"
+            android:paddingTop="6dp"
+            android:paddingLeft="6dp">
+
+            <RelativeLayout
+                android:id="@+id/layout_hospital"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/btnNearbyHospitals"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_hospital"
+                    android:padding="0dp"
+                    android:background="@drawable/hospital_icon_background"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_police"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/layout_hospital"
+                android:paddingTop="6dp"
+                >
+
+                <ImageView
+                    android:id="@+id/btnNearbyPoliceStations"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_police_stations"
+                    android:background="@drawable/icons_background"
+                    android:padding="0dp"
+                    />
+            </RelativeLayout>
+
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+
+    <Button
+        android:id="@+id/btnGetDirection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/navBlue"
+        android:text="Get Route"
+        android:textSize="15dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:textColor="@color/white" />
+
+
+
+</FrameLayout>
