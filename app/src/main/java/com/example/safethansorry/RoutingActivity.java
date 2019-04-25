@@ -837,13 +837,181 @@ public class RoutingActivity extends AppCompatActivity implements OnItemClickLis
 
     @Override
     public void onTaskDone(int count, List<PolylineOptions> poly) {
-        int i;
+        int i, maxIndex=0;
+        int[] estCount =  new int[count];
         for(i=0;i<count;i++){
             if(poly.get(i)!=null){
-                mMap.addPolyline((PolylineOptions)poly.get(i));
+                estCount[i] = (getNumberOfEstablishmentsForRoute((PolylineOptions)poly.get(i)));
+                Log.d("MYINT", "value: " + estCount[i]);
+                if(estCount[maxIndex]<estCount[i])
+                    maxIndex = i;
+                //mMap.addPolyline((PolylineOptions)poly.get(i));
             }
         }
+        for(i=0;i<count;i++){
+            if(maxIndex != i) {
+                mMap.addPolyline((PolylineOptions) poly.get(i).color(Color.BLUE));
+            }
+            else{
+                mMap.addPolyline((PolylineOptions)poly.get(i).color(Color.MAGENTA));
+            }
+
+        }
+        mMap.addPolyline((PolylineOptions)poly.get(maxIndex).color(Color.MAGENTA));
+        Toast.makeText(RoutingActivity.this,"Safest Route has " + Integer.toString(estCount[maxIndex]), Toast.LENGTH_LONG).show();
+
     }
+
+
+    /**
+     * Start: Methods and classes for getting nearby locations along a route
+     */
+    int masterCount = 0, localCount=0;
+
+    int getNumberOfEstablishmentsForRoute(PolylineOptions polylineOptions) {
+        getDirection.setVisibility(View.INVISIBLE);
+        int i;
+        masterCount = 0;
+        LatLng currentPoint;
+        List<LatLng> points = polylineOptions.getPoints();
+
+        for(i=0;i<points.size();i=i+5) {
+            localCount = 0;
+            currentPoint = (LatLng) points.get(i);
+            StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+            sb.append("location=" + currentPoint.latitude + "," + currentPoint.longitude);
+            sb.append("&radius=100");
+            sb.append("&types=" + "hospitals");
+            sb.append("&sensor=true");
+            sb.append("&key=AIzaSyDu-CcNOu9R3RvWPVshJFDa7GHE0ezf1w4");
+            sb.append("&opennow=true");
+
+            // Creating a new non-ui thread task to download json data
+            PlacesTaskNonUI placesTaskNonUI = new PlacesTaskNonUI();
+
+            // Invokes the "doInBackground()" method of the class PlaceTask
+            placesTaskNonUI.execute(sb.toString());
+            masterCount+=localCount;
+            Log.d("mastercount", "value: " + masterCount);
+        }
+        Log.d("master count final", "value: " + masterCount);
+        return masterCount;
+        //return Counter.getCount();
+    }
+
+
+    /** A method to download json data from url */
+    private String downloadUrlNonUI (String strUrl) throws IOException {
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(strUrl);
+
+            // Creating an http connection to communicate with url
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            // Connecting to url
+            urlConnection.connect();
+
+            // Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb = new StringBuffer();
+
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        } catch (Exception e) {
+            Log.d("Exception dwnloadng url", e.toString());
+        } finally {
+            iStream.close();
+            urlConnection.disconnect();
+        }
+
+        return data;
+    }
+
+    /** A class, to download Google Places */
+    private class PlacesTaskNonUI extends AsyncTask<String, Integer, String> {
+
+
+        String data = null;
+
+        // Invoked by execute() method of this object
+        @Override
+        protected String doInBackground(String... url) {
+            try {
+                data = downloadUrlNonUI(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+
+        // Executed after the complete execution of doInBackground() method
+        @Override
+        protected void onPostExecute(String result) {
+            ParserTaskNonUI parserTaskNonUI = new ParserTaskNonUI();
+
+            // Start parsing the Google places in JSON format
+            // Invokes the "doInBackground()" method of the class ParseTask
+            parserTaskNonUI.execute(result);
+        }
+
+
+    }
+
+    /** A class to parse the Google Places in JSON format */
+    private class ParserTaskNonUI extends AsyncTask<String, Integer, List<HashMap<String, String>>> {
+
+        JSONObject jObject;
+
+        // Invoked by execute() method of this object
+        @Override
+        protected List<HashMap<String, String>> doInBackground(String... jsonData) {
+
+            List<HashMap<String, String>> places = null;
+            PlaceJSONParser placeJsonParser = new PlaceJSONParser();
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+
+                /** Getting the parsed data as a List construct */
+                places = placeJsonParser.parse(jObject);
+
+            } catch (Exception e) {
+                Log.d("Exception", e.toString());
+            }
+
+            return places;
+        }
+
+        // Executed after the complete execution of doInBackground() method
+        @Override
+        public void onPostExecute(List<HashMap<String, String>> list) {
+
+
+            localCount= list.size();
+            //Counter.update(list.size());
+            Log.d("InParserNonUI", "value: " + localCount);
+
+        }
+
+    }
+
+
+    /**
+     * End : Methods and classes to get nearby locations along the route
+     */
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
