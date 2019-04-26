@@ -348,10 +348,15 @@ public class RoutingActivity extends AppCompatActivity implements OnItemClickLis
 
         StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         sb.append("location=" + latitude + "," + longitude);
-        sb.append("&radius=2000");
+        if(placeType == "hospital"){
+            sb.append("&radius=2000");
+        }
+        if(placeType == "police") {
+            sb.append("&radius=5000");
+        }
         sb.append("&types=" + placeType);
         sb.append("&sensor=true");
-        sb.append("&key=AIzaSyDu-CcNOu9R3RvWPVshJFDa7GHE0ezf1w4");
+        sb.append("&key=" + getString(R.string.google_maps_key));                           /** API KEY **/
         sb.append("&opennow=true");
 
         // Creating a new non-ui thread task to download json data
@@ -858,7 +863,6 @@ public class RoutingActivity extends AppCompatActivity implements OnItemClickLis
 
         }
         mMap.addPolyline((PolylineOptions)poly.get(maxIndex).color(Color.MAGENTA));
-        Toast.makeText(RoutingActivity.this,"Safest Route has " + Integer.toString(estCount[maxIndex]), Toast.LENGTH_LONG).show();
 
     }
 
@@ -896,7 +900,7 @@ public class RoutingActivity extends AppCompatActivity implements OnItemClickLis
         }
         Log.d("master count final", "value: " + masterCount);
         return masterCount;
-        //return Counter.getCount();
+
     }
 
 
@@ -1001,17 +1005,16 @@ public class RoutingActivity extends AppCompatActivity implements OnItemClickLis
 
 
             localCount= list.size();
-            //Counter.update(list.size());
             Log.d("InParserNonUI", "value: " + localCount);
 
         }
 
     }
 
-
     /**
      * End : Methods and classes to get nearby locations along the route
      */
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
